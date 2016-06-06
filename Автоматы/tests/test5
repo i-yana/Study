@@ -1,0 +1,11 @@
+E E' T T' F
++ * ) ( id
+E->T E'
+E'->+ T E'
+E'->eps
+T->F T'
+T'->* F T'
+T'->eps
+F->( E )
+F->id
+#id+id*id*(id+id)

@@ -1,0 +1,38 @@
+<project name="LoC" default="jar">
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="jar">
+        <mkdir dir="build/Main"/>
+        <mkdir dir="build/Tests"/>
+            <javac includeantruntime="false" srcdir="src" classpath="junit-4.12.jar" destdir="build/Main"/>
+                <jar destfile="LoC.jar" basedir="build/Main">
+                    <manifest>
+                        <attribute name="Main-Class" value="ru/nsu/ccfit/zharkova/LoC/Main/LoC"/>
+                    </manifest>
+                </jar>
+    </target>
+
+
+    <target name="run-tests">
+        <junit
+                haltonerror="yes"
+                printsummary="yes" haltonfailure="yes"
+                showoutput="yes" logfailedtests="on"
+                filtertrace="off">
+            <formatter type="plain" usefile="false" />
+            <classpath>
+                <pathelement path="build/Tests"/>
+                <pathelement path="junit-4.12.jar"/>
+            </classpath>
+
+            <batchtest fork="yes">
+                <fileset dir="build/Tests">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+</project>

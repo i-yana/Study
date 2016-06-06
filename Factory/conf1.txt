@@ -1,0 +1,8 @@
+StorageBodySize=1
+StorageMotorSize=1
+StorageAccessorySize=1
+StorageAutoSize=1
+AccessorySuppliers=1
+Workers=1
+Dealers=1
+LogSale=false

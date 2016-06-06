@@ -1,0 +1,12 @@
+expression term factor
++ - * / ( ) n
+expression->expression + term
+expression->expression - term
+expression->term
+term->term * factor
+term->term / factor
+term->factor
+factor->( expression )
+factor->n
+#грамматика арифметических выражений
+#пример n+n*(n-n)/n

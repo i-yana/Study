@@ -1,0 +1,127 @@
+#include <mpi.h>
+#include <iostream>
+#include <cmath>
+
+int main(int argc, char* argv[]){
+  int rank, size;
+  char hostname[50];
+  
+  MPI_Init(&argc, &argv);
+
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  double start, end;
+
+  int n = 5000;
+  int localSize = n / size + (rank < n % size);
+  int localOffset = rank * (n / size) + (rank < n % size) ? rank : n % size;
+
+  double* zk = new double[localSize];
+  double* xPart = new double[localSize];
+  double* xFull = new double[n];
+  double* a = new double[n * localSize];
+  double epsilon = 0.00000001;
+  double tau = 0.0001;
+  double* b = new double[localSize];
+
+  double localSum = 0;
+  double globalSum = 0;
+  double norm = 1;
+  double normLocalB = 0;
+
+  int* recvcounts = new int[size];
+  int* displs = new int[size];
+
+  start = MPI_Wtime();
+
+  for(int i = 0; i < size; i++){
+      recvcounts[i] = n / size + (i < n % size);
+  }
+  displs[0] = 0;
+  for(int i = 1; i < size; i++){
+      displs[i] = displs[i - 1] + recvcounts[i - 1];
+  }
+
+  //initialization
+  for(int i = 0; i < localSize; i++){
+    xPart[i] = 0;
+    zk[i] = 0;
+    b[i] = n + 1;
+    normLocalB += b[i] * b[i];
+    for(int j = 0; j < n; j++)
+      a[i * n + j] = (localOffset + i == j) ? 2 : 1;
+  }
+
+  for(int i = 0; i < n; i++)
+    xFull[i] = 0;
+
+  double normB = 0;
+  MPI_Allreduce(&normLocalB, &normB, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  normB = sqrt(normB);
+  if(rank == 0)
+  std::cerr << normB << std::endl;
+
+  int iter = 0;
+  while(norm > epsilon && iter < 15000){
+    iter++;
+    for(int i = 0; i < localSize; i++){
+        zk[i] = 0;
+    }
+    localSum = 0;
+    globalSum = 0;
+
+    for(int i = 0; i < n; i++){
+        xFull[i] = 0;
+    }
+
+
+    MPI_Allgatherv(xPart, localSize, MPI_DOUBLE, xFull, recvcounts, displs, MPI_DOUBLE, MPI_COMM_WORLD);
+
+    for(int i = 0; i < localSize; i++){
+      //zk = Ax
+      for(int j = 0; j < n; j++){
+        zk[i] += a[i * n + j] * xFull[j];
+      }
+      //zk = zk - b
+      zk[i] -= b[i];
+
+      //x_{k+1} = xk - tau*zk
+      xPart[i] = xPart[i] - tau * zk[i];
+    }
+    
+    for(int i = 0; i < localSize; i++)
+    {
+      localSum += zk[i] * zk[i];
+    }
+    //std::cerr << rank << localSum << std::endl;
+
+    MPI_Allreduce(&localSum, &globalSum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    norm = sqrt(globalSum) / normB;
+
+    /*
+    if(rank == 0){
+      std::cerr << norm << std::endl;
+      for(int i =0; i < n; i++){
+        std::cerr<< xFull[i] << " ";
+      }
+      std::cerr<<std::endl;
+    }
+    */
+  }
+
+  end = MPI_Wtime();
+  
+  std::cerr<< "Rank = " << rank << ", norm = " << norm << ", iter = " << iter << ", time: " << end - start << std::endl;
+  /*
+  if(0 == rank){
+      for(int i = 0; i < n; i++){
+        std::cerr << xFull[i] << " ";
+  }
+      std::cerr << std::endl;
+  }
+  */
+  
+  MPI_Finalize();
+  return 0;
+}

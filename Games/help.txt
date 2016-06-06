@@ -1,0 +1,6 @@
+Ð§ÐExamplf the command line:
+-l life.txt
+-l -i 5 -o life.txt
+
+-f fire.txt
+-f -i 12 -o fire.txt

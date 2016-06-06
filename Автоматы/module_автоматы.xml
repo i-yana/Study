@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_автоматы" default="compile.module.автоматы">
+  <dirname property="module.автоматы.basedir" file="${ant.file.module_автоматы}"/>
+  
+  <property name="module.jdk.home.автоматы" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.автоматы" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.автоматы" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.автоматы" value="-encoding UTF-8 -source 1.6 ${compiler.args}"/>
+  
+  <property name="автоматы.output.dir" value="${module.автоматы.basedir}/out/production/Автоматы"/>
+  <property name="автоматы.testoutput.dir" value="${module.автоматы.basedir}/out/test/Автоматы"/>
+  
+  <path id="автоматы.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="автоматы.module.production.classpath">
+    <path refid="${module.jdk.classpath.автоматы}"/>
+  </path>
+  
+  <path id="автоматы.runtime.production.module.classpath">
+    <pathelement location="${автоматы.output.dir}"/>
+  </path>
+  
+  <path id="автоматы.module.classpath">
+    <path refid="${module.jdk.classpath.автоматы}"/>
+    <pathelement location="${автоматы.output.dir}"/>
+  </path>
+  
+  <path id="автоматы.runtime.module.classpath">
+    <pathelement location="${автоматы.testoutput.dir}"/>
+    <pathelement location="${автоматы.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.автоматы">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.автоматы">
+    <patternset refid="excluded.from.module.автоматы"/>
+  </patternset>
+  
+  <path id="автоматы.module.sourcepath">
+    <dirset dir="${module.автоматы.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.автоматы" depends="compile.module.автоматы.production,compile.module.автоматы.tests" description="Compile module Автоматы"/>
+  
+  <target name="compile.module.автоматы.production" description="Compile module Автоматы; production classes">
+    <mkdir dir="${автоматы.output.dir}"/>
+    <javac destdir="${автоматы.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.автоматы}/javac">
+      <compilerarg line="${compiler.args.автоматы}"/>
+      <bootclasspath refid="автоматы.module.bootclasspath"/>
+      <classpath refid="автоматы.module.production.classpath"/>
+      <src refid="автоматы.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.автоматы"/>
+    </javac>
+    
+    <copy todir="${автоматы.output.dir}">
+      <fileset dir="${module.автоматы.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.автоматы.tests" depends="compile.module.автоматы.production" description="compile module Автоматы; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.автоматы" description="cleanup module">
+    <delete dir="${автоматы.output.dir}"/>
+    <delete dir="${автоматы.testoutput.dir}"/>
+  </target>
+</project>

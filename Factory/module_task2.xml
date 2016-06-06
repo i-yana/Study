@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_task2" default="compile.module.task2">
+  <dirname property="module.task2.basedir" file="${ant.file.module_task2}"/>
+  
+  
+  <property name="compiler.args.task2" value="-encoding UTF-8 -source 1.8 -Xlint:unchecked ${compiler.args}"/>
+  
+  <property name="task2.output.dir" value="${module.task2.basedir}/out/production/task2"/>
+  <property name="task2.testoutput.dir" value="${module.task2.basedir}/out/test/task2"/>
+  
+  <path id="task2.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="task2.module.production.classpath"/>
+  
+  <path id="task2.runtime.production.module.classpath">
+    <pathelement location="${task2.output.dir}"/>
+  </path>
+  
+  <path id="task2.module.classpath">
+    <pathelement location="${task2.output.dir}"/>
+  </path>
+  
+  <path id="task2.runtime.module.classpath">
+    <pathelement location="${task2.testoutput.dir}"/>
+    <pathelement location="${task2.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.task2">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.task2">
+    <patternset refid="excluded.from.module.task2"/>
+  </patternset>
+  
+  <path id="task2.module.sourcepath">
+    <dirset dir="${module.task2.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.task2" depends="compile.module.task2.production,compile.module.task2.tests" description="Compile module task2"/>
+  
+  <target name="compile.module.task2.production" description="Compile module task2; production classes">
+    <mkdir dir="${task2.output.dir}"/>
+    <javac destdir="${task2.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" includeAntRuntime="no">
+      <compilerarg line="${compiler.args.task2}"/>
+      <bootclasspath refid="task2.module.bootclasspath"/>
+      <classpath refid="task2.module.production.classpath"/>
+      <src refid="task2.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.task2"/>
+    </javac>
+    
+    <copy todir="${task2.output.dir}">
+      <fileset dir="${module.task2.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.task2.tests" depends="compile.module.task2.production" description="compile module task2; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.task2" description="cleanup module">
+    <delete dir="${task2.output.dir}"/>
+    <delete dir="${task2.testoutput.dir}"/>
+  </target>
+</project>

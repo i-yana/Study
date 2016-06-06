@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="chat" default="all">
+  
+
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
+  <property name="skip.tests" value="true"/>
+   -->
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="700m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/*.rbc/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.bundle/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/.tox/**"/>
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/RCS/**"/>
+    <exclude name="**/SCCS/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/rcs/**"/>
+    <exclude name="**/vssver.scc/**"/>
+    <exclude name="**/vssver2.scc/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.zip"/>
+    <include name="*.apk"/>
+    <include name="*.war"/>
+    <include name="*.egg"/>
+    <include name="*.ear"/>
+    <include name="*.ane"/>
+    <include name="*.swc"/>
+    <include name="*.jar"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <exclude name="**/?*.java"/>
+    <exclude name="**/?*.form"/>
+    <exclude name="**/?*.class"/>
+    <exclude name="**/?*.groovy"/>
+    <exclude name="**/?*.scala"/>
+    <exclude name="**/?*.flex"/>
+    <exclude name="**/?*.kt"/>
+    <exclude name="**/?*.clj"/>
+    <exclude name="**/?*.aj"/>
+  </patternset>
+  
+  
+  <!-- Project Libraries -->
+  
+  <path id="library.log4j-1.2.17.classpath">
+    <pathelement location="${basedir}/log4j/log4j-1.2.17.jar"/>
+  </path>
+  
+  <!-- Modules -->
+  
+  
+  <!-- Module Chat -->
+  
+  <dirname property="module.chat.basedir" file="${ant.file}"/>
+  
+  
+  
+  <property name="compiler.args.chat" value="-encoding windows-1251 -source 8 ${compiler.args}"/>
+  
+  <property name="chat.output.dir" value="${module.chat.basedir}/out/production/Chat"/>
+  <property name="chat.testoutput.dir" value="${module.chat.basedir}/out/test/Chat"/>
+  
+  <path id="chat.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="chat.module.production.classpath">
+    <path refid="library.log4j-1.2.17.classpath"/>
+  </path>
+  
+  <path id="chat.runtime.production.module.classpath">
+    <pathelement location="${chat.output.dir}"/>
+    <path refid="library.log4j-1.2.17.classpath"/>
+  </path>
+  
+  <path id="chat.module.classpath">
+    <pathelement location="${chat.output.dir}"/>
+    <path refid="library.log4j-1.2.17.classpath"/>
+  </path>
+  
+  <path id="chat.runtime.module.classpath">
+    <pathelement location="${chat.testoutput.dir}"/>
+    <pathelement location="${chat.output.dir}"/>
+    <path refid="library.log4j-1.2.17.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.chat">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.chat">
+    <patternset refid="excluded.from.module.chat"/>
+  </patternset>
+  
+  <path id="chat.module.sourcepath">
+    <dirset dir="${module.chat.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.chat" depends="compile.module.chat.production,compile.module.chat.tests" description="Compile module Chat"/>
+  
+  <target name="compile.module.chat.production" description="Compile module Chat; production classes">
+    <mkdir dir="${chat.output.dir}"/>
+    <javac destdir="${chat.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" includeantruntime="false">
+      <compilerarg line="${compiler.args.chat}"/>
+      <bootclasspath refid="chat.module.bootclasspath"/>
+      <classpath refid="chat.module.production.classpath"/>
+      <src refid="chat.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.chat"/>
+    </javac>
+    
+    <copy todir="${chat.output.dir}">
+      <fileset dir="${module.chat.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.chat.tests" depends="compile.module.chat.production" description="compile module Chat; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.chat" description="cleanup module">
+    <delete dir="${chat.output.dir}"/>
+    <delete dir="${chat.testoutput.dir}"/>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.chat" description="cleanup all"/>
+  
+  <target name="build.modules" depends="init, clean, compile.module.chat" description="build all modules"/>
+  
+  <target name="init.artifacts">
+    <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
+    <property name="artifact.output.chat:jar" value="${basedir}"/>
+    <property name="artifact.output.server:jar" value="${basedir}"/>
+    <mkdir dir="${artifacts.temp.dir}"/>
+    <property name="temp.jar.path.Chat.jar" value="${artifacts.temp.dir}/Chat.jar"/>
+    <property name="temp.jar.path.Server.jar" value="${artifacts.temp.dir}/Server.jar"/>
+  </target>
+  
+  <target name="artifact.chat:jar" depends="init.artifacts, compile.module.chat" description="Build &#39;Chat:jar&#39; artifact">
+    <property name="artifact.temp.output.chat:jar" value="${artifacts.temp.dir}/Chat_jar"/>
+    <mkdir dir="${artifact.temp.output.chat:jar}"/>
+    <jar destfile="${temp.jar.path.Chat.jar}" duplicate="preserve" filesetmanifest="merge">
+      <zipfileset file="${basedir}/src/client/META-INF/MANIFEST.MF" prefix="META-INF"/>
+      <zipfileset dir="${chat.output.dir}"/>
+      <zipfileset src="${basedir}/log4j/log4j-1.2.17.jar"/>
+    </jar>
+    <copy file="${temp.jar.path.Chat.jar}" tofile="${artifact.temp.output.chat:jar}/Chat.jar"/>
+  </target>
+  
+  <target name="artifact.server:jar" depends="init.artifacts, compile.module.chat" description="Build &#39;Server:jar&#39; artifact">
+    <property name="artifact.temp.output.server:jar" value="${artifacts.temp.dir}/Server_jar"/>
+    <mkdir dir="${artifact.temp.output.server:jar}"/>
+    <jar destfile="${temp.jar.path.Server.jar}" duplicate="preserve" filesetmanifest="merge">
+      <zipfileset file="${basedir}/src/server/META-INF/MANIFEST.MF" prefix="META-INF"/>
+      <zipfileset dir="${chat.output.dir}"/>
+      <zipfileset src="${basedir}/log4j/log4j-1.2.17.jar"/>
+    </jar>
+    <copy file="${temp.jar.path.Server.jar}" tofile="${artifact.temp.output.server:jar}/Server.jar"/>
+  </target>
+  
+  <target name="build.all.artifacts" depends="artifact.chat:jar, artifact.server:jar" description="Build all artifacts">
+    <mkdir dir="${artifact.output.chat:jar}"/>
+    <copy todir="${artifact.output.chat:jar}">
+      <fileset dir="${artifact.temp.output.chat:jar}"/>
+    </copy>
+    <mkdir dir="${artifact.output.server:jar}"/>
+    <copy todir="${artifact.output.server:jar}">
+      <fileset dir="${artifact.temp.output.server:jar}"/>
+    </copy>
+    
+    <!-- Delete temporary files -->
+    <delete dir="${artifacts.temp.dir}"/>
+  </target>
+  
+  <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
+</project>
